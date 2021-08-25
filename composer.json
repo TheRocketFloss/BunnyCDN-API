@@ -1,5 +1,5 @@
 {
-  "name": "corbpie/bunny-cdn-api",
+  "name": "therocketfloss/bunny-cdn-api",
   "description": "Bunny CDN API class for pull and storage zones",
   "type": "library",
   "license": "MIT",
@@ -13,7 +13,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/cp6/BunnyCDN-API"
+      "url": "https://github.com/TheRocketFloss/BunnyCDN-API"
     }
   ],
   "require": {
