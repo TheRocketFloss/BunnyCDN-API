@@ -38,7 +38,7 @@ class BunnyAPI
     public function apiKey(string $api_key = ''): string
     {
         if (!isset($api_key) || trim($api_key) === '') {
-            throw new Exception("You must provide an API key");
+            throw new \Exception("You must provide an API key");
         }
         $this->api_key = $api_key;
         return json_encode(array('response' => 'success', 'action' => 'apiKey'));
@@ -55,7 +55,7 @@ class BunnyAPI
             $this->connection = $conn_id;
             return json_encode(array('response' => 'success', 'action' => 'zoneConnect'));
         } else {
-            throw new Exception("Could not make FTP connection to " . (self::HOSTNAME) . "");
+            throw new \Exception("Could not make FTP connection to " . (self::HOSTNAME) . "");
         }
     }
 
@@ -82,7 +82,7 @@ class BunnyAPI
     private function APIcall(string $method, string $url, array $params = [], bool $storage_call = false, bool $video_stream_call = false): string
     {
         if (!$this->constApiKeySet()) {
-            throw new Exception("apiKey() is not set");
+            throw new \Exception("apiKey() is not set");
         }
         $curl = curl_init();
         if ($method === "POST") {
@@ -373,40 +373,40 @@ class BunnyAPI
     public function createFolder(string $name): ?string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         if (ftp_mkdir($this->connection, $name)) {
             return json_encode(array('response' => 'success', 'action' => 'createFolder'));
         } else {
-            throw new Exception("Could not create folder $name");
+            throw new \Exception("Could not create folder $name");
         }
     }
 
     public function deleteFolder(string $name): ?string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         if (ftp_rmdir($this->connection, $name)) {
             return json_encode(array('response' => 'success', 'action' => 'deleteFolder'));
         } else {
-            throw new Exception("Could not delete $name");
+            throw new \Exception("Could not delete $name");
         }
     }
 
     public function deleteFile(string $name): ?string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         if (ftp_delete($this->connection, $name)) {
             return json_encode(array('response' => 'success', 'action' => 'deleteFile'));
         } else {
-            throw new Exception("Could not delete $name");
+            throw new \Exception("Could not delete $name");
         }
     }
 
     public function deleteAllFiles(string $dir): ?string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         $url = (self::STORAGE_API_URL);
         $array = json_decode(file_get_contents("$url/$this->storage_name/" . $dir . "/?AccessKey=$this->access_key"), true);
         foreach ($array as $value) {
@@ -416,7 +416,7 @@ class BunnyAPI
                 if (ftp_delete($this->connection, $full_name)) {
                     echo json_encode(array('response' => 'success', 'action' => 'deleteAllFiles'));
                 } else {
-                    throw new Exception("Could not delete $full_name");
+                    throw new \Exception("Could not delete $full_name");
                 }
             }
         }
@@ -425,14 +425,14 @@ class BunnyAPI
     public function uploadAllFiles(string $dir, string $place, $mode = FTP_BINARY): ?string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         $obj = scandir($dir);
         foreach ($obj as $file) {
             if (!is_dir($file)) {
                 if (ftp_put($this->connection, "" . $place . "$file", "$dir/$file", $mode)) {
                     echo json_encode(array('response' => 'success', 'action' => 'uploadAllFiles'));
                 } else {
-                    throw new Exception("Error uploading " . $place . "$file as " . $place . "/" . $file . "");
+                    throw new \Exception("Error uploading " . $place . "$file as " . $place . "/" . $file . "");
                 }
             }
         }
@@ -441,14 +441,14 @@ class BunnyAPI
     public function getFileSize(string $file): int
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         return ftp_size($this->connection, $file);
     }
 
     public function dirSize(string $dir = ''): array
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         $url = (self::STORAGE_API_URL);
         $array = json_decode(file_get_contents("$url/$this->storage_name" . $dir . "/?AccessKey=$this->access_key"), true);
         $size = 0;
@@ -466,74 +466,74 @@ class BunnyAPI
     public function currentDir(): string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         return ftp_pwd($this->connection);
     }
 
     public function changeDir(string $moveto): ?string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         if (ftp_chdir($this->connection, $moveto)) {
             return json_encode(array('response' => 'success', 'action' => 'changeDir'));
         } else {
-            throw new Exception("Error moving to $moveto");
+            throw new \Exception("Error moving to $moveto");
         }
     }
 
     public function moveUpOne(): ?string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         if (ftp_cdup($this->connection)) {
             return json_encode(array('response' => 'success', 'action' => 'moveUpOne'));
         } else {
-            throw new Exception("Error moving to parent dir");
+            throw new \Exception("Error moving to parent dir");
         }
     }
 
     public function renameFile(string $dir, string $file_name, string $new_file_name): void
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         $path_data = pathinfo("{$dir}$file_name");
         $file_type = $path_data['extension'];
         if (ftp_get($this->connection, "TEMPFILE.$file_type", "{$dir}$file_name", FTP_BINARY)) {
             if (ftp_put($this->connection, "{$dir}$new_file_name", "TEMPFILE.$file_type", FTP_BINARY)) {
                 $this->deleteFile("{$dir}$file_name");
             } else {
-                throw new Exception("ftp_put fail: {$dir}$new_file_name, TEMPFILE.$file_type");
+                throw new \Exception("ftp_put fail: {$dir}$new_file_name, TEMPFILE.$file_type");
             }
         } else {
-            throw new Exception("ftp_get fail: TEMPFILE.$file_type, {$dir}$file_name");
+            throw new \Exception("ftp_get fail: TEMPFILE.$file_type, {$dir}$file_name");
         }
     }
 
     public function moveFile(string $dir, string $file_name, string $move_to): void
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         $path_data = pathinfo("{$dir}$file_name");
         $file_type = $path_data['extension'];
         if (ftp_get($this->connection, "TEMPFILE.$file_type", "{$dir}$file_name", FTP_BINARY)) {
             if (ftp_put($this->connection, "$move_to{$file_name}", "TEMPFILE.$file_type", FTP_BINARY)) {
                 $this->deleteFile("{$dir}$file_name");
             } else {
-                throw new Exception("ftp_put fail");
+                throw new \Exception("ftp_put fail");
             }
         } else {
-            throw new Exception("ftp_get fail");
+            throw new \Exception("ftp_get fail");
         }
     }
 
     public function downloadFile(string $save_as, string $get_file, int $mode = FTP_BINARY): ?string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         if (ftp_get($this->connection, $save_as, $get_file, $mode)) {
             return json_encode(array('response' => 'success', 'action' => 'downloadFile'));
         } else {
-            throw new Exception("Error downloading $get_file as $save_as");
+            throw new \Exception("Error downloading $get_file as $save_as");
         }
     }
 
@@ -556,7 +556,7 @@ class BunnyAPI
     public function downloadAll(string $dir_dl_from = '', string $dl_into = '', int $mode = FTP_BINARY): ?string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         $url = (self::STORAGE_API_URL);
         $array = json_decode(file_get_contents("$url/$this->storage_name" . $dir_dl_from . "/?AccessKey=$this->access_key"), true);
         foreach ($array as $value) {
@@ -565,7 +565,7 @@ class BunnyAPI
                 if (ftp_get($this->connection, "" . $dl_into . "$file_name", $file_name, $mode)) {
                     echo json_encode(array('response' => 'success', 'action' => 'downloadAll'));
                 } else {
-                    throw new Exception("Error downloading $file_name to " . $dl_into . "$file_name");
+                    throw new \Exception("Error downloading $file_name to " . $dl_into . "$file_name");
                 }
             }
         }
@@ -574,11 +574,11 @@ class BunnyAPI
     public function uploadFile(string $upload, string $upload_as, int $mode = FTP_BINARY): ?string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         if (ftp_put($this->connection, $upload_as, $upload, $mode)) {
             return json_encode(array('response' => 'success', 'action' => 'uploadFile'));
         } else {
-            throw new Exception("Error uploading $upload as $upload_as");
+            throw new \Exception("Error uploading $upload as $upload_as");
         }
     }
 
@@ -614,7 +614,7 @@ class BunnyAPI
     public function listAllOG(): string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         $url = (self::STORAGE_API_URL);
         return file_get_contents("$url/$this->storage_name/?AccessKey=$this->access_key");
     }
@@ -622,7 +622,7 @@ class BunnyAPI
     public function listFiles(string $location = ''): string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         $url = (self::STORAGE_API_URL);
         $array = json_decode(file_get_contents("$url/$this->storage_name" . $location . "/?AccessKey=$this->access_key"), true);
         $items = array('storage_name' => "" . $this->storage_name, 'current_dir' => $location, 'data' => array());
@@ -648,7 +648,7 @@ class BunnyAPI
     public function listFolders(string $location = ''): string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         $url = (self::STORAGE_API_URL);
         $array = json_decode(file_get_contents("$url/$this->storage_name" . $location . "/?AccessKey=$this->access_key"), true);
         $items = array('storage_name' => $this->storage_name, 'current_dir' => $location, 'data' => array());
@@ -668,7 +668,7 @@ class BunnyAPI
     public function listAll(string $location = ''): string
     {
         if (is_null($this->connection))
-            throw new Exception("zoneConnect() is not set");
+            throw new \Exception("zoneConnect() is not set");
         $url = (self::STORAGE_API_URL);
         $array = json_decode(file_get_contents("$url/$this->storage_name" . $location . "/?AccessKey=$this->access_key"), true);
         $items = array('storage_name' => "" . $this->storage_name, 'current_dir' => $location, 'data' => array());
@@ -699,7 +699,7 @@ class BunnyAPI
         if (ftp_close($this->connection)) {
             return json_encode(array('response' => 'success', 'action' => 'closeConnection'));
         } else {
-            throw new Exception("Error closing connection to " . (self::HOSTNAME) . "");
+            throw new \Exception("Error closing connection to " . (self::HOSTNAME) . "");
         }
     }
 
@@ -792,7 +792,7 @@ class BunnyAPI
     public function listVideos(int $page = 1, int $items_pp = 100, string $order_by = 'date'): string
     {
         if (!isset($this->stream_library_id)) {
-            throw new Exception("You must set library id with: setStreamLibraryId()");
+            throw new \Exception("You must set library id with: setStreamLibraryId()");
         }
         return $this->APIcall('GET', "library/{$this->stream_library_id}/videos?page=$page&itemsPerPage=$items_pp&orderBy=$order_by", [], false, true);
     }
